@@ -1,16 +1,21 @@
-# Threat Hunt Report: Fabricated Support Incident and Data Exfiltration
+# Threat Hunt Report: Credential Theft and Data Exfiltration Investigation
 
-##  Scenario
+## Executive Summary
 
-Subsequent analysis of a routine support request reveals behavior inconsistent with typical remote assistance. Multiple artifacts were left behind, including unusual process executions and system modifications. Notably, a post-session narrative was introduced to explain away anomalies, though forensic traces suggest a premeditated sequence of access and manipulation. This investigation seeks to reconstruct the timeline of activity and determine whether the actions taken were aligned with support protocols or if they were intentionally staged under the guise of assistance.
+Azuki Import & Export Trading Co. experienced anomalous network activity and suspicious process executions between November 18-19, 2025. The activity originated from external RDP connections and escalated into a multi-stage attack involving credential theft, lateral movement, and data exfiltration. The investigation revealed behavior consistent with ADE SPIDER (APT-SL44), a financially motivated threat actor known for targeting logistics companies across East Asia. The attacker employed multiple techniques including defense evasion, persistence mechanisms, and anti-forensic measures to maintain access and extract sensitive data. This investigation reconstructs the complete attack timeline and documents the threat actor's tactics, techniques, and procedures.
 
 ## Background
-**Incident Date:** 09 October 2025  
-**Compromised Host:** gab-intern-vm  
+- **Incident Date:** November 18-19, 2025  
+- **Compromised Host:** azuki-logistics  
+- **Threat Actor:** ADE SPIDER (APT-SL44, SilentLynx)  
+- **Motivation:** Financial  
+- **Target Profile:** Logistics and import/export companies, East Asia region  
+- **Typical Dwell Time:** 21-45 days  
+- **Attack Sophistication:** Moderate with preference for low-footprint techniques
 
 ---
 
-## Steps Taken
+## Investigation Steps
 
 ### 1. Initial Execution Detection
 
