@@ -17,36 +17,23 @@ Azuki Import & Export Trading Co. experienced anomalous network activity and sus
 
 ## Investigation Steps
 
-### 1. Initial Execution Detection
+### 1. Initial Access - Remote Access Source
 
-Searched for files created in the user's Downloads folder during the investigation timeframe and discovered SupportTool.ps1 created on 10/9/2025 at 12:22 PM by powershell.exe in the user's Downloads folder at C:\Users\g4bri3lintern\Downloads\. Next, searched for the execution of SupportTool.ps1 to identify command-line parameters. The first execution revealed the attacker used -ExecutionPolicy Bypass to circumvent PowerShell security controls by bypassing PowerShell's execution policy. 
+Searched for remote interactive sessions from external sources during the incident timeframe to identify the origin of unauthorized access. The analysis revealed that IP address 88.97.178.12 established an RDP connection to the compromised host.
 
 **Queries used to locate events:**
 
 ```kql
-DeviceFileEvents
-| where TimeGenerated between (datetime(2025-10-01) .. datetime(2025-10-15))
-| where DeviceName == "gab-intern-vm"
-| where FileName contains "desk" or FileName contains "help" or FileName contains "support" or FileName contains "tool"
-| where FolderPath contains "Downloads"
-| project TimeGenerated, FileName, FolderPath, ActionType, InitiatingProcessFileName
+DeviceLogonEvents
+| where TimeGenerated between (datetime(2025-11-18) .. datetime(2025-11-19))
+| where DeviceName has "azuki"
+| where LogonType == "RemoteInteractive"
+| where isnotempty(RemoteIP)
+| project TimeGenerated, RemoteIP, DeviceName, AccountName
 | sort by TimeGenerated asc
 
 ```
-<img width="2685" height="459" alt="Query1A Results" src="https://github.com/user-attachments/assets/e539c268-b75e-4aa1-9985-ca00d6f96a0d" />
-
----
-
-```kql
-DeviceProcessEvents
-| where TimeGenerated between (datetime(2025-10-09) .. datetime(2025-10-10))
-| where DeviceName == "gab-intern-vm"
-| where ProcessCommandLine contains "SupportTool.ps1"
-| project TimeGenerated, FileName, ProcessCommandLine, InitiatingProcessFileName, AccountName
-| sort by TimeGenerated asc
-
-```
-<img width="2868" height="657" alt="Query1B Results" src="https://github.com/user-attachments/assets/c2c3abe4-f2fe-446f-b99c-36f6eea3cc2c" />
+<img width="1839" height="310" alt="POE_QR1" src="https://github.com/user-attachments/assets/2e07843b-250d-432d-a249-cf0cdfd2ba27" />
 
 ---
 
