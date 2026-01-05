@@ -17,9 +17,9 @@ Azuki Import & Export Trading Co. experienced anomalous network activity and sus
 
 ## Investigation Steps
 
-### 1. Initial Access - Remote Access Source
+### 1. Initial Access - Remote Access Source & Compromised User Account
 
-Searched for remote interactive sessions from external sources during the incident timeframe to identify the origin of unauthorized access. The analysis revealed that IP address 88.97.178.12 established an RDP connection to the compromised host.
+Searched for remote interactive sessions from external sources during the incident timeframe to identify the origin of unauthorized access. The analysis revealed that the external IP address 88.97.178.12 established an RDP connection to azuki-logistics, marking the initial access point for the attack. In addition, discovered that the account that was compromised and used for initial RDP access was the user account kenji.sato.
 
 **Queries used to locate events:**
 
@@ -37,27 +37,7 @@ DeviceLogonEvents
 
 ---
 
-### 2. Defense Disabling
-
-Searched for evidence of staged artifacts and discovered that DefenderTamperArtifact.lnk was created on 10/09/2025 at 12:34 PM. This shortcut file in the Recent folder indicates that the attacker may have manually accessed a file designed to simulate Windows Defender tampering.
-
-**Query used to locate events:**
-
-```kql
-DeviceFileEvents
-| where TimeGenerated between (datetime(2025-10-09) .. datetime(2025-10-10))
-| where DeviceName == "gab-intern-vm"
-| where FolderPath contains "Recent"
-| where ActionType == "FileCreated"
-| project TimeGenerated, FileName, FolderPath, InitiatingProcessFileName
-| sort by TimeGenerated asc
-
-```
-<img width="1954" height="876" alt="Query2 Results" src="https://github.com/user-attachments/assets/4808772a-3c7e-4b05-a7dc-8523b7ff72cf" />
-
----
-
-### 3. Data Probe
+### 2. Data Probe
 
 Searched for clipboard access attempts and discovered the attacker executed the following clipboard data probe: "powershell.exe" -NoProfile -Sta -Command "try { Get-Clipboard | Out-Null } catch { }" on 10/09/2025 at 12:50 PM. This PowerShell command attempts to quietly query the clipboard, possibly in an attempt to capture any sensitive or copied data present (e.g., passwords or credit card numbers), essentially leveraging Get-Clipboard for a low-effort win.
 
