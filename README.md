@@ -247,23 +247,86 @@ DeviceProcessEvents
 
 ---
 
-### 14. Autorun Fallback Persistence
+### 13. Impact: Persistence Account
 
-Searched for registry modifications for autorun fallback persistence. Although DeviceRegistryEvents showed no results, the attacker created a registry value named RemoteAssistUpdater as part of their fallback persistence mechanism. In other words, the attacker created redundant persistence so if the primary persistence mechanism (i.e., the scheduled task) is removed or disabled, this will keep them in the system.
+Searched for evidence of account creation since hidden administrator accounts provide alternative access for future campaigns. The backdoor account "support" was created and added to the local Administrators group. It's clear that the account name was chosen to blend in with legitimate IT support accounts, providing persistent administrative access for future operations.
 
 **Query used to locate events:**
 
 ```kql
-DeviceRegistryEvents
-| where TimeGenerated between (datetime(2025-10-09) .. datetime(2025-10-10))
-| where DeviceName == "gab-intern-vm"
-| where RegistryKey contains "run"
-| project TimeGenerated, RegistryKey, RegistryValueName, RegistryValueData, InitiatingProcessFileName, InitiatingProcessCommandLine
+DeviceProcessEvents
+| where TimeGenerated between (datetime(2025-11-18) .. datetime(2025-11-20))
+| where DeviceName == "azuki-sl"
+| where ProcessCommandLine has "/add" 
+| project TimeGenerated, ProcessCommandLine
 | sort by TimeGenerated asc
+
 ```
+<img width="1766" height="464" alt="POE_QR17" src="https://github.com/user-attachments/assets/d10608a1-c7bf-4d0e-815d-735fbb1c3da1" />
+
 ---
 
-### 15. Planted Narrative and Cover Artifact
+### 14. Execution: Malicious Script
+
+Searched for script files created in temporary directories since attackers often use scripting languages to automate their attack chain and identifying the initial attack script reveals the entry point and automation method used in the compromise. The PowerShell script wupdate.ps1 was created in the user's temporary directory and used to automate the attack chain. The filename was disguised to resemble a Windows update utility, enabling execution without raising suspicion.
+
+**Query used to locate events:**
+
+```kql
+DeviceFileEvents
+| where TimeGenerated between (datetime(2025-11-18) .. datetime(2025-11-20))
+| where DeviceName == "azuki-sl"
+| where FileName endswith ".ps1" or FileName endswith ".bat"
+| where ActionType == "FileCreated"
+| where FolderPath !contains "Windows Defender" 
+| where FolderPath !contains "__PSScriptPolicyTest"
+| project TimeGenerated, DeviceName, FolderPath, FileName, InitiatingProcessFileName
+| sort by TimeGenerated desc
+
+```
+<img width="2535" height="474" alt="POE_QR18" src="https://github.com/user-attachments/assets/eded8066-aa1a-4ffe-9994-78a573bb347f" />
+
+---
+
+### 15. Lateral Movement: Secondary Target
+
+Searched for target systems specified in remote access commands and discovered that the attacker targeted IP address 10.1.0.188 for lateral movement. Since lateral movement targets are selected based on their access to sensitive data or network privileges, identifying these targets can reveal attacker objectives.
+
+**Query used to locate events:**
+
+```kql
+DeviceProcessEvents
+| where TimeGenerated between (datetime(2025-11-18) .. datetime(2025-11-20))
+| where DeviceName == "azuki-sl"
+| where FileName in ("cmdkey.exe", "mstsc.exe")
+| project TimeGenerated, FileName, ProcessCommandLine
+| sort by TimeGenerated desc
+
+```
+<img width="2140" height="474" alt="POE_QR19" src="https://github.com/user-attachments/assets/a579c51e-e75b-478e-b81e-b29b879a0fbf" />
+
+---
+
+### 16. XX
+
+Searched for explanatory artifacts created around the time of the suspicious activity that might serve as planted narratives and identified that the file name of the artifact left behind was SupportChat_log.lnk.
+
+**Query used to locate events:**
+
+```kql
+DeviceFileEvents
+| where TimeGenerated between (datetime(2025-10-09 12:20:00) .. datetime(2025-10-09 14:00:00))
+| where DeviceName == "gab-intern-vm"
+| where FileName contains "Support"
+| project TimeGenerated, FileName, FolderPath, ActionType, InitiatingProcessFileName
+| sort by TimeGenerated asc
+
+```
+<img width="2470" height="659" alt="Query15 Results" src="https://github.com/user-attachments/assets/b5ce65ce-b182-4f81-bc4c-7cf78cdd2618" />
+
+---
+
+### 17. XXX
 
 Searched for explanatory artifacts created around the time of the suspicious activity that might serve as planted narratives and identified that the file name of the artifact left behind was SupportChat_log.lnk.
 
