@@ -158,7 +158,7 @@ DeviceProcessEvents
 
 ### 8. Command & Control: C2 Server Address & C2 Communication Port
 
-Searched for a command and control server since attackers typically utilize command and control infrastructure to remotely control compromised systems. A command and control server at 78.141.196.6 was contacted by malicious svchost.exe from multiple machines. In addition, command and control communications utilized port 443 (HTTPS) to blend in with legitimate encrypted web traffic, making network-based detection more difficult and evading basic firewall rules.
+Searched for a command and control server since attackers typically utilize command and control infrastructure to remotely control compromised systems. A command and control server at 78.141.196.6 was contacted by malicious svchost.exe from multiple machines. In addition, command and control communications utilized port 443 (HTTPS) to blend in with legitimate encrypted web traffic, making network-based detection more difficult and allowing for the evasion of basic firewall rules.
 
 **Query used to locate events:**
 
@@ -176,39 +176,37 @@ DeviceNetworkEvents
 
 ### 9. Credential Access - Credential Theft Tool
 
-Searched for outbound connectivity tests and identified that the first outbound destination contacted was www.msftconnecttest.com which is a Microsoft connectivity test endpoint used to validate internet connectivity. In other words, the attacker used a legitimate Microsoft connectivity test service to validate outbound internet access before attempting data exfiltration.
+Searched for executables downloaded to the staging directory since credential dumping tools are typically used to extract authentication secrets from system memory and dicovered a credential dumping tool with the filename mm.exe.
 
 **Query used to locate events:**
 
 ```kql
-DeviceNetworkEvents
-| where TimeGenerated between (datetime(2025-10-09 12:50:00) .. datetime(2025-10-09 13:50:00))
-| where DeviceName == "gab-intern-vm"
-| where InitiatingProcessFileName == "powershell.exe"
-| project TimeGenerated, RemoteUrl, RemoteIP, InitiatingProcessCommandLine, InitiatingProcessFileName
-| sort by TimeGenerated asc
+DeviceProcessEvents
+| where TimeGenerated between (datetime(2025-11-18) .. datetime(2025-11-20))
+| where DeviceName == "azuki-sl"
+| where ProcessCommandLine has "WindowsCache"
+| project TimeGenerated, DeviceName, FileName, ProcessCommandLine
 
 ```
-<img width="2551" height="382" alt="Query10 Results" src="https://github.com/user-attachments/assets/25055020-f770-4c80-8b29-1275aa3af22f" />
+<img width="2649" height="809" alt="POE_QR12" src="https://github.com/user-attachments/assets/ec341bc9-d013-4018-a73d-124968bf3465" />
 
 ---
 
-### 11. Bundling and Staging Artifacts 
+### 10. Credential Access: Memory Extraction Module 
 
-Searched for signs of file consolidation and packaging and identified that the first folder used for bundling the collected data was: C:\Users\Public\ReconArtifacts.zip.
+Searched for command line arguments passed to the credential dumping tool to identify the specific module used to extract passwords from memory and discovered that the Mimikatz module "sekurlsa::logonpasswords" was used by the attacker to extract credentials from LSASS (Local Security Authority Subsystem Service) memory.
 
 **Query used to locate events:**
 
 ```kql
-DeviceFileEvents
-| where TimeGenerated between (datetime(2025-10-09 12:50:00) .. datetime(2025-10-09 13:50:00))
-| where DeviceName == "gab-intern-vm"
-| where FileName endswith ".zip"
-| project TimeGenerated, FileName, FolderPath, ActionType, InitiatingProcessFileName
-| sort by TimeGenerated asc
+DeviceProcessEvents
+| where TimeGenerated between (datetime(2025-11-18) .. datetime(2025-11-20))
+| where DeviceName == "azuki-sl"
+| where ProcessCommandLine has "mm.exe"
+| project TimeGenerated, ProcessCommandLine
 
 ```
-<img width="2724" height="605" alt="Query11 Results" src="https://github.com/user-attachments/assets/d081aed5-7724-4a7e-b5d7-b70c4c29cf05" />
+<img width="1948" height="330" alt="POE_QR13" src="https://github.com/user-attachments/assets/68801ab9-e4f7-4af6-b358-05a3104f9bed" />
 
 ---
 ### 12. Outbound Transfer Attempt
