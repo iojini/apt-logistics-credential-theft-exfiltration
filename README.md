@@ -349,22 +349,26 @@ The sophistication of this attack, including the use of multiple persistence mec
 
 | TTP ID | TTP Name | Description | Detection Relevance |
 |:--------:|:----------:|:-------------:|:---------------------:|
-| T1059.001 | PowerShell | Malicious PowerShell script executed with bypassed execution policy to perform reconnaissance and establish persistence. | Identifies initial execution and subsequent malicious activity via PowerShell commands. |
-| T1027 | Obfuscated Files or Information | Attacker used legitimate-sounding file names (SupportTool.ps1, DefenderTamperArtifact.lnk) to disguise malicious intent. | Indicates deceptive naming conventions to evade detection. |
-| T1564.004 | NTFS File Attributes | Planted artifacts (DefenderTamperArtifact.lnk, SupportChat_log.txt) created to establish false narratives. | Identifies staged evidence designed to mislead investigators. |
-| T1115 | Clipboard Data | PowerShell command used to capture clipboard contents containing potentially sensitive information. | Detects opportunistic data theft from transient sources. |
-| T1082 | System Information Discovery | Multiple reconnaissance commands executed including query session, wmic logicaldisk, and tasklist. | Indicates comprehensive host enumeration prior to further exploitation. |
-| T1033 | System Owner/User Discovery | Used whoami /groups to enumerate current user privileges and group memberships. | Identifies privilege surface checks to inform escalation attempts. |
-| T1049 | System Network Connections Discovery | Network connectivity validated through RuntimeBroker.exe and connectivity tests. | Indicates network reconnaissance and egress validation. |
-| T1057 | Process Discovery | Tasklist.exe executed to enumerate running processes and identify security tools. | Detects runtime application inventory for evasion planning. |
-| T1567.002 | Exfiltration to Cloud Storage | Staged artifacts bundled into ReconArtifacts.zip and upload capability tested via httpbin.org. | Identifies data staging and exfiltration validation attempts. |
-| T1053.005 | Scheduled Task | Created SupportToolUpdater scheduled task with ONLOGON trigger for persistence. | Detects automated re-execution mechanism for long-term access. |
-| T1547.001 | Registry Run Keys / Startup Folder | Registry autorun entry RemoteAssistUpdater created as fallback persistence mechanism. | Identifies redundant persistence via registry modification. |
-| T1070.009 | Clear Persistence Artifacts | Planted SupportChat_log.txt to create cover story justifying suspicious activity. | Detects fabricated narratives designed to deflect investigation. |
+| T1078.003 | Valid Accounts: Local Accounts | Compromised kenji.sato account used for initial RDP access | Identifies authentication with compromised credentials from external sources |
+| T1021.001 | Remote Services: Remote Desktop Protocol | External RDP connection from 88.97.178.12 established initial foothold | Detects unauthorized external RDP connections |
+| T1018 | Remote System Discovery | arp -a command executed to enumerate network neighbors | Indicates reconnaissance activity prior to lateral movement |
+| T1564.001 | Hide Artifacts: Hidden Files and Directories | attrib +h +s used to hide C:\ProgramData\WindowsCache staging directory | Identifies attempts to conceal malicious artifacts |
+| T1562.001 | Impair Defenses: Disable or Modify Tools | Windows Defender exclusions added for .bat, .ps1, .exe and Temp folder | Detects security control modifications |
+| T1105 | Ingress Tool Transfer | certutil.exe abused to download svchost.exe and mm.exe from 78.141.196.6 | Identifies LOLBin abuse for malware downloads |
+| T1053.005 | Scheduled Task/Job: Scheduled Task | "Windows Update Check" scheduled task created for persistence | Detects automated persistence mechanisms |
+| T1003.001 | OS Credential Dumping: LSASS Memory | Mimikatz sekurlsa::logonpasswords used to extract credentials | Identifies credential theft from LSASS |
+| T1560.001 | Archive Collected Data: Archive via Utility | Data compressed into export-data.zip for exfiltration | Detects data staging for exfiltration |
+| T1567.002 | Exfiltration Over Web Service: Exfiltration to Cloud Storage | Discord webhook used to exfiltrate compressed archive | Identifies data exfiltration to cloud services |
+| T1136.001 | Create Account: Local Account | Local administrator account "support" created as backdoor | Detects unauthorized account creation |
+| T1550.001 | Use Alternate Authentication Material: Application Access Token | cmdkey.exe used to store credentials for lateral movement | Identifies credential storage for remote access |
+| T1021.001 | Remote Services: Remote Desktop Protocol | mstsc.exe used to move laterally to file server 10.1.0.188 | Detects internal RDP connections for lateral movement |
+| T1071.001 | Application Layer Protocol: Web Protocols | C2 communications over HTTPS (port 443) to 78.141.196.6 | Indicates C2 channel over encrypted web traffic |
+| T1070.001 | Indicator Removal: Clear Windows Event Logs | wevtutil.exe used to systematically clear Security, System, and Application logs | Detects anti-forensic log tampering |
+| T1059.001 | Command and Scripting Interpreter: PowerShell | wupdate.ps1 PowerShell script used to automate attack chain | Identifies malicious PowerShell script execution |
 
 ---
 
-This table organizes the MITRE ATT&CK techniques (TTPs) observed during the investigation. The detection methods identified both the attack techniques (e.g., PowerShell execution, clipboard theft, reconnaissance, persistence mechanisms) and confirmed the sophistication of the attack, with multiple layers of obfuscation and deception.
+This table organizes the MITRE ATT&CK techniques observed during the investigation. The detection methods identified both the attack techniques and enabled confirmation of the threat actor's sophistication through multiple layers of obfuscation, persistence, and anti-forensics.
 
 ---
 
