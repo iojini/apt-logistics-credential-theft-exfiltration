@@ -97,64 +97,66 @@ DeviceRegistryEvents
 
 ---
 
-### 6. Connectivity and Name Resolution Check 
+### 5. Defense Evasion: Temporary Folder Exclusion 
 
-Searched for network reachability and name resolution checks and discovered connectivity checks initiated by RuntimeBroker.exe as the parent process.
+Searched for folder path exclusions added to Windows Defender configuration to prevent scanning of directories used for downloading and executing malicious tools. These exclusions allow malware to run undetected. The temporary folder C:\Users\KENJI~1.SAT\AppData\Local\Temp (i.e., kenji.sato's temp directory) was excluded from Defender scanning, allowing the attacker to freely download and execute malware.
 
 **Query used to locate events:**
 
 ```kql
-DeviceProcessEvents
-| where TimeGenerated between (datetime(2025-10-09) .. datetime(2025-10-10))
-| where DeviceName == "gab-intern-vm"
-| where ProcessCommandLine has_any ("ping", "nslookup", "Test-Connection", "Resolve-DnsName", "ipconfig", "tracert", "Test-NetConnection")
-| project TimeGenerated, FileName, ProcessCommandLine, InitiatingProcessFileName, InitiatingProcessParentFileName, InitiatingProcessCommandLine
+DeviceRegistryEvents
+| where TimeGenerated between (datetime(2025-11-18) .. datetime(2025-11-20))
+| where DeviceName == "azuki-sl"
+| where RegistryKey has "Windows Defender" and RegistryKey has "Exclusions" and RegistryKey has "Paths"
+| project TimeGenerated, DeviceName, RegistryKey, RegistryValueName, RegistryValueData
 | sort by TimeGenerated asc
 
 ```
-<img width="2867" height="597" alt="Query6 Results" src="https://github.com/user-attachments/assets/9f50369b-c546-49e4-a907-d92003348b94" />
+<img width="2655" height="331" alt="POE_QR6" src="https://github.com/user-attachments/assets/bbebc01b-4949-43ce-b016-4ceec7c1d2c0" />
 
 ---
 
-### 7. Interactive Session Discovery
+### 6. Defense Evasion: Download Utility Abuse
 
-Searched for session enumeration and identified that the PowerShell session (InitiatingProcessUniqueId: 2533274790397065) executed on 10/9/2025 at 12:50 PM was the initiating process of cmd.exe running qwinsta in order to detect active user sessions which helps the attacker decide their next step (i.e., act immediately or wait).
+Searched for the use of built-in Windows tools with network download capabilities that may have been used during the attack and discovered that certutil.exe, a legitimate Windows certificate utility, was used by the attacker to download malware from http://78.141.196.6:8080/. Also, note that the -urlcache -f flags enable file downloads while evading security controls.
 
 **Query used to locate events:**
 
 ```kql
 DeviceProcessEvents
-| where TimeGenerated between (datetime(2025-10-09) .. datetime(2025-10-10))
-| where DeviceName == "gab-intern-vm"
-| where ProcessCommandLine contains "qwi"
-| project TimeGenerated, FileName, ProcessCommandLine, InitiatingProcessFileName, InitiatingProcessUniqueId
+| where TimeGenerated between (datetime(2025-11-18) .. datetime(2025-11-20))
+| where DeviceName == "azuki-sl"
+| where AccountName == "kenji.sato" or InitiatingProcessAccountName == "kenji.sato"
+| where ProcessCommandLine has_any ("http://", "https://", ".exe", "download", "-o", "-outfile")
+| project TimeGenerated, DeviceName, FileName, ProcessCommandLine
 | sort by TimeGenerated asc
 
 ```
-<img width="2432" height="459" alt="Query7 Results" src="https://github.com/user-attachments/assets/d46fcc05-35ab-4231-89e0-f07fc62dff24" />
+<img width="2395" height="335" alt="POE_QR7" src="https://github.com/user-attachments/assets/6bdbb5cb-55b9-4058-ac05-a0d3b03e5f0b" />
 
 ---
 
-### 8. Runtime Application Inventory
+### 7. Persistence: Scheduled Task Name & Scheduled Task Target
 
-Searched for process enumeration commands and discovered that the attacker used tasklist /v to get a complete inventory of all running processes, applications, and services on the host. Also, identified that the file name of the process that was used for runtime inventory was tasklist.exe.
+Searched for the execution of scheduled task creation commands during the attack timeline since scheduled tasks provide reliable persistence across system reboots. In this case, the name of the scheduled task created for persistence was Windows Update Check. Note that the task name often attempts to blend in with legitimate Windows system maintenance. In addition, the task action was extracted from the scheduled task creation command line to reveal the exact persistence mechanism and malware location. The /tr parameter value indicates which executable runs at the scheduled time. The scheduled task was configured to execute C:\ProgramData\WindowsCache\svchost.exe, a malicious binary disguised as the legitimate Windows Host Process, ensuring automated re-execution after system reboots.
 
 **Query used to locate events:**
 
 ```kql
 DeviceProcessEvents
-| where TimeGenerated between (datetime(2025-10-09) .. datetime(2025-10-10))
-| where DeviceName == "gab-intern-vm"
-| where ProcessCommandLine contains ("tasklist")
-| project TimeGenerated, FileName, ProcessCommandLine, InitiatingProcessFileName
-| sort by TimeGenerated desc
+| where TimeGenerated between (datetime(2025-11-18) .. datetime(2025-11-20))
+| where DeviceName == "azuki-sl"
+| where FileName == "schtasks.exe"
+| where ProcessCommandLine has "/create"
+| project TimeGenerated, DeviceName, ProcessCommandLine
+| sort by TimeGenerated asc
 
 ```
-<img width="1908" height="322" alt="Query8 Results" src="https://github.com/user-attachments/assets/8af07514-4dfd-41cc-8433-b2700ab2bfeb" />
+<img width="2446" height="271" alt="POE_QR8" src="https://github.com/user-attachments/assets/385623e2-9556-4767-ab71-526db9d18644" />
 
 ---
 
-### 9. Privilege Surface Check
+### 9. Persistence: Scheduled Task Target
 
 Searched for privilege enumeration commands and discovered that the first privilege check occurred at 2025-10-09T12:52:14.3135459Z. The attacker used whoami /groups to enumerate the group memberships of the user in an attempt to understand what privileges they had. This allows the attacker to decide whether they could proceed with their current access level or if they need to attempt privilege escalation.
 
