@@ -17,7 +17,7 @@ Azuki Import & Export Trading Co. experienced anomalous network activity and sus
 
 ## Investigation Steps
 
-### 1. Initial Access - Remote Access Source & Compromised User Account
+### 1. Initial Access: Remote Access Source & Compromised User Account
 
 Searched for remote interactive sessions from external sources during the incident timeframe to identify the origin of unauthorized access. The analysis revealed that the external IP address 88.97.178.12 established an RDP connection to azuki-logistics, marking the initial access point for the attack. In addition, discovered that the account that was compromised and used for initial RDP access was the user account kenji.sato.
 
@@ -37,22 +37,22 @@ DeviceLogonEvents
 
 ---
 
-### 2. Data Probe
+### 2. Discovery: Network Reconnaissance
 
-Searched for clipboard access attempts and discovered the attacker executed the following clipboard data probe: "powershell.exe" -NoProfile -Sta -Command "try { Get-Clipboard | Out-Null } catch { }" on 10/09/2025 at 12:50 PM. This PowerShell command attempts to quietly query the clipboard, possibly in an attempt to capture any sensitive or copied data present (e.g., passwords or credit card numbers), essentially leveraging Get-Clipboard for a low-effort win.
+Searched for evidence of network enumeration by focusing the search on arp commands since it's the most common command for enumerating network neighbors with hardware addresses. The command and argument used to enumerate network neighbours was arp -a. This command displays the Address Resolution Protocol (ARP) cache, showing IP addresses mapped to MAC (i.e., hardware) addresses of devices on the local network. It's also useful for revealing the local network topology for planning lateral movement.
 
 **Query used to locate events:**
 
 ```kql
 DeviceProcessEvents
-| where TimeGenerated between (datetime(2025-10-09) .. datetime(2025-10-10))
-| where DeviceName == "gab-intern-vm"
-| where ProcessCommandLine contains "clip" 
-| project TimeGenerated, FileName, ProcessCommandLine, InitiatingProcessFileName
+| where TimeGenerated between (datetime(2025-11-18) .. datetime(2025-11-19))
+| where FileName has "arp"
+| where ProcessCommandLine has "-a"
+| project TimeGenerated, FileName, ProcessCommandLine
 | sort by TimeGenerated asc
 
 ```
-<img width="2539" height="721" alt="Query3 Results" src="https://github.com/user-attachments/assets/35926e7e-bc2c-4b88-ad02-d602ffd1d054" />
+<img width="1840" height="263" alt="POE_QR3" src="https://github.com/user-attachments/assets/e670390f-ef41-42be-a5cb-702feb778b5a" />
 
 ---
 
