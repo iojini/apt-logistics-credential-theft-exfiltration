@@ -1,4 +1,4 @@
-# Threat Hunt Report: Credential Theft and Data Exfiltration Investigation
+# Threat Hunt Report: Credential Theft and Data Exfiltration
 
 ## Executive Summary
 
