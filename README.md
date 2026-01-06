@@ -77,7 +77,7 @@ DeviceProcessEvents
 
 ---
 
-### 4. Defence Evasion: File Extension Exclusions
+### 4. Defense Evasion: File Extension Exclusions
 
 Searched registry modifications to Windows Defender's exclusion settings to identify file extensions added by the attacker. Adding file extension exclusions prevents scanning of malicious files; thereby, revealing the scope of the defense evasion strategy. The attacker excluded .bat, .ps1, and .exe file extensions from Windows Defender scanning, allowing malicious scripts and executables to run undetected. A total of 3 file extensions were excluded.
 
@@ -156,26 +156,25 @@ DeviceProcessEvents
 
 ---
 
-### 9. Persistence: Scheduled Task Target
+### 8. Command & Control: C2 Server Address & C2 Communication Port
 
-Searched for privilege enumeration commands and discovered that the first privilege check occurred at 2025-10-09T12:52:14.3135459Z. The attacker used whoami /groups to enumerate the group memberships of the user in an attempt to understand what privileges they had. This allows the attacker to decide whether they could proceed with their current access level or if they need to attempt privilege escalation.
+Searched for a command and control server since attackers typically utilize command and control infrastructure to remotely control compromised systems. A command and control server at 78.141.196.6 was contacted by malicious svchost.exe from multiple machines. In addition, command and control communications utilized port 443 (HTTPS) to blend in with legitimate encrypted web traffic, making network-based detection more difficult and evading basic firewall rules.
 
 **Query used to locate events:**
 
 ```kql
-DeviceProcessEvents
-| where TimeGenerated between (datetime(2025-10-09) .. datetime(2025-10-10))
-| where DeviceName == "gab-intern-vm"
-| where ProcessCommandLine has_any ("whoami")
-| project TimeGenerated, FileName, ProcessCommandLine, InitiatingProcessFileName
+DeviceNetworkEvents
+| where TimeGenerated between (datetime(2025-11-18) .. datetime(2025-11-20))
+| where InitiatingProcessFolderPath has "WindowsCache" 
+| project TimeGenerated, DeviceName, InitiatingProcessFileName, InitiatingProcessFolderPath, RemoteIP, RemotePort, RemoteUrl
 | sort by TimeGenerated asc
 
 ```
-<img width="1918" height="727" alt="Query9 Results" src="https://github.com/user-attachments/assets/3fc9d937-1fc6-4fa5-b5e1-2d6357adfaaa" />
+<img width="2390" height="394" alt="POE_QR10B" src="https://github.com/user-attachments/assets/f8cd25f7-ac3c-4945-958f-e1dc6aa771a1" />
 
 ---
 
-### 10. Proof-of-Access and Egress Validation
+### 9. Credential Access - Credential Theft Tool
 
 Searched for outbound connectivity tests and identified that the first outbound destination contacted was www.msftconnecttest.com which is a Microsoft connectivity test endpoint used to validate internet connectivity. In other words, the attacker used a legitimate Microsoft connectivity test service to validate outbound internet access before attempting data exfiltration.
 
