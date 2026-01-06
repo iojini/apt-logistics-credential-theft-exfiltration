@@ -325,23 +325,26 @@ The sophistication of this attack, including the use of multiple persistence mec
 
 ## Timeline
 
-| Time (UTC) | Steps Taken | Action Observed | Key Evidence |
-|:--------:|:----------:|:-------------:|:---------------------:|
-| 2025-10-09T12:22:27.6588913Z | 1 | Initial Execution Detection | Creation of SupportTool.ps1 and execution with -ExecutionPolicy Bypass |
-| 2025-10-09T12:34:59.1260624Z | 2 | Defense Disabling | DefenderTamperArtifact.lnk |
-| 2025-10-09T12:50:39.955931Z | 3 | Quick Data Probe | Get-Clipboard command: "powershell.exe" -NoProfile -Sta -Command "try { Get-Clipboard | Out-Null } catch { }" |
-| 2025-10-09T12:51:44.3425653Z | 4 | Host Context Reconnaissance | Query session (i.e., qwinsta) |
-| 2025-10-09T12:51:18.3848072Z | 5 | Storage Surface Mapping | wmic logicaldisk enumeration |
-| 2025-10-09T12:51:31.5692262Z | 6 | Connectivity & Name Resolution Check | RuntimeBroker.exe parent process |
-| 2025-10-09T12:50:59.3449917Z | 7 | Interactive Session Discovery | Initiating Process UniqueId: 2533274790397065 |
-| 2025-10-09T12:51:57.6866149Z | 8 | Runtime Application Inventory | tasklist.exe |
-| 2025-10-09T12:52:14.3135459Z | 9 | Privilege Surface Check | whoami /groups |
-| 2025-10-09T12:55:05.7658713Z | 10 | Proof-of-Access & Egress Validation | www.msftconnecttest.com |
-| 2025-10-09T12:58:17.4364257Z | 11 | Bundling / Staging Artifacts | C:\Users\Public\ReconArtifacts.zip |
-| 2025-10-09T13:00:40.045127Z | 12 | Outbound Transfer Attempt (Simulated) | httpbin.org (100.29.147.161) |
-| 2025-10-09T13:01:28.7700443Z | 13 | Scheduled Re-Execution Persistence | SupportToolUpdater (ONLOGON) |
-| N/A | 14 | Autorun Fallback Persistence | RemoteAssistUpdater |
-| 2025-10-09T13:02:41.5698148Z | 15 | Planted Narrative / Cover Artifact | SupportChat_log.lnk |
+| Time (UTC) | Step | Action Observed | Key Evidence |
+|:------------:|:------:|:----------------:|:--------------:|
+| 2025-11-18 20:12:33 | 1 | Initial Access via RDP | External connection from 88.97.178.12 using kenji.sato credentials |
+| 2025-11-19 19:04:01 | 2 | Network Reconnaissance | arp -a command executed to enumerate local network |
+| 2025-11-19 12:59:50 | 3 | Defense Evasion - Staging | C:\ProgramData\WindowsCache directory created and hidden |
+| 2025-11-19 13:49:27 | 4 | Defense Evasion - Exclusions | Three file extensions (.bat, .ps1, .exe) excluded from Defender |
+| 2025-11-19 18:49:27 | 5 | Defense Evasion - Path Exclusion | C:\Users\KENJI~1.SAT\AppData\Local\Temp excluded from scanning |
+| 2025-11-19 18:49:48 | 6 | Script Deployment | wupdate.ps1 PowerShell script created in Temp directory |
+| 2025-11-19 19:06:58 | 7 | Malware Download | certutil.exe used to download svchost.exe from 78.141.196.6:8080 |
+| 2025-11-19 19:07:21 | 8 | Credential Tool Download | certutil.exe used to download mm.exe (Mimikatz) |
+| 2025-11-19 19:07:46 | 9 | Persistence - Scheduled Task | "Windows Update Check" task created for daily execution at 02:00 |
+| 2025-11-19 19:08:26 | 10 | Credential Dumping | mm.exe executed with sekurlsa::logonpasswords module |
+| 2025-11-19 19:09:21 | 11 | Data Exfiltration | export-data.zip uploaded to Discord webhook via curl.exe |
+| 2025-11-19 19:09:48 | 12 | Backdoor Account Creation | Local administrator account "support" created |
+| 2025-11-19 19:10:37 | 13 | Credential Storage for Lateral Movement | cmdkey.exe used to store fileadmin credentials for 10.1.0.188 |
+| 2025-11-19 19:10:41 | 14 | Lateral Movement | mstsc.exe launched to connect to file server (10.1.0.188) |
+| 2025-11-19 19:11:04 | 15 | C2 Communication | Malicious svchost.exe contacted 78.141.196.6:443 |
+| 2025-11-19 19:11:39 | 16 | Anti-Forensics - Security Log | wevtutil.exe used to clear Security event log |
+| 2025-11-19 19:11:43 | 17 | Anti-Forensics - System Log | wevtutil.exe used to clear System event log |
+| 2025-11-19 19:11:46 | 18 | Anti-Forensics - Application Log | wevtutil.exe used to clear Application event log |
 
 ---
 
