@@ -174,7 +174,7 @@ DeviceNetworkEvents
 
 ---
 
-### 9. Credential Access - Credential Theft Tool
+### 9. Credential Access: Credential Theft Tool
 
 Searched for executables downloaded to the staging directory since credential dumping tools are typically used to extract authentication secrets from system memory and dicovered a credential dumping tool with the filename mm.exe.
 
@@ -227,22 +227,23 @@ DeviceProcessEvents
 
 ---
 
-### 13. Exfiltration: Exfiltration Channel
+### 12. Anti-Forensics: Log Tampering
 
-Searched for scheduled task creation commands and found a scheduled task named SupportToolUpdater configured to run ONLOGON. This ensures that SupportTool.ps1 runs automatically every time the user logs in. Additional parameters include -WindowStyle (set to Hidden) and -ExecutionPolicy (set to Bypass), allowing it to execute while avoiding detection and bypassing security.
+Searched for event log clearing commands since attackers clear event logs in order to destroy forensic evidence and impede investigation efforts. In this case, the attacker cleared event logs in sequence, starting with the Security log (which contains logon events and credential access evidence), followed by System and Application logs.
 
 **Query used to locate events:**
 
 ```kql
 DeviceProcessEvents
-| where TimeGenerated between (datetime(2025-10-09) .. datetime(2025-10-10))
-| where DeviceName == "gab-intern-vm"
-| where ProcessCommandLine contains "schtasks"
-| project TimeGenerated, FileName, ProcessCommandLine, InitiatingProcessFileName
+| where TimeGenerated between (datetime(2025-11-18) .. datetime(2025-11-20))
+| where DeviceName == "azuki-sl"
+| where FileName == "wevtutil.exe"
+| where ProcessCommandLine has "cl"
+| project TimeGenerated, ProcessCommandLine
 | sort by TimeGenerated asc
 
 ```
-<img width="2783" height="323" alt="Query13 Results" src="https://github.com/user-attachments/assets/d1bdcde3-14ad-45f3-8a55-6c8c0f11e292" />
+<img width="2209" height="398" alt="POE_QR15" src="https://github.com/user-attachments/assets/2331376e-d9b6-47d6-97b2-86eb63556def" />
 
 ---
 
