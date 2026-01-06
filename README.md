@@ -56,22 +56,24 @@ DeviceProcessEvents
 
 ---
 
-### 4. Host Context Reconnaissance
+### 3. Defense Evasion: Malware Staging Directory
 
-Searched for host reconnaissance commands and identified a qwinsta session query executed on 10/09/2025 at 12:51 PM (i.e., 2025-10-09T12:51:44.3425653Z).
+Searched for the the primary staging directory where malware was stored and found that the primary staging directory C:\ProgramData\WindowsCache was created and hidden using attrib commands. 
 
 **Query used to locate events:**
 
 ```kql
 DeviceProcessEvents
-| where TimeGenerated between (datetime(2025-10-09) .. datetime(2025-10-10))
-| where DeviceName == "gab-intern-vm"
-| where ProcessCommandLine contains "qwi"
-| project TimeGenerated, FileName, ProcessCommandLine, InitiatingProcessFileName
-| sort by TimeGenerated desc
+| where TimeGenerated  between (datetime(2025-11-18) .. datetime(2025-11-20))
+| where DeviceName == "azuki-sl"
+| where AccountName == "kenji.sato"
+| where FileName in ("cmd.exe", "powershell.exe", "attrib.exe")
+| where ProcessCommandLine has_any ("mkdir", "New-Item", "attrib", "md ")
+| project TimeGenerated, FileName, ProcessCommandLine, DeviceName, AccountName
+| sort by TimeGenerated asc
 
 ```
-<img width="1783" height="473" alt="Query4 Results" src="https://github.com/user-attachments/assets/1319b432-7596-4cd3-b20a-a38982c6caac" />
+<img width="2535" height="256" alt="POE_QR4" src="https://github.com/user-attachments/assets/8dad5f3f-dc0c-4437-8f48-c80ce44cb8a7" />
 
 ---
 
