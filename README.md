@@ -77,22 +77,23 @@ DeviceProcessEvents
 
 ---
 
-### 5. Storage Surface Mapping
+### 4. Defence Evasion: File Extension Exclusions
 
-Searched for storage-related reconnaissance by querying storage enumeration commands. The second command tied to this activity was: "cmd.exe" /c wmic logicaldisk get name,freespace,size, likely used for checking local disk space.
+Searched registry modifications to Windows Defender's exclusion settings to identify file extensions added by the attacker. Adding file extension exclusions prevents scanning of malicious files; thereby, revealing the scope of the defense evasion strategy. The attacker excluded .bat, .ps1, and .exe file extensions from Windows Defender scanning, allowing malicious scripts and executables to run undetected. A total of 3 file extensions were excluded.
 
 **Query used to locate events:**
 
 ```kql
-DeviceProcessEvents
-| where TimeGenerated between (datetime(2025-10-09) .. datetime(2025-10-10))
-| where DeviceName == "gab-intern-vm"
-| where ProcessCommandLine has_any ("net share", "net use", "wmic logicaldisk", "Get-PSDrive")
-| project TimeGenerated, FileName, ProcessCommandLine, InitiatingProcessFileName
+DeviceRegistryEvents
+| where TimeGenerated between (datetime(2025-11-18) .. datetime(2025-11-20))
+| where DeviceName == "azuki-sl"
+| where RegistryKey has "Windows Defender" and RegistryKey has "Exclusions"
+| where RegistryKey has "Extensions"
+| project TimeGenerated, DeviceName, RegistryKey, RegistryValueName, RegistryValueData
 | sort by TimeGenerated asc
 
 ```
-<img width="2000" height="347" alt="Query5 Results" src="https://github.com/user-attachments/assets/64f12ca7-6b53-4bd2-9f74-d51d4894b5ec" />
+<img width="2307" height="382" alt="POE_QR5" src="https://github.com/user-attachments/assets/51e2123d-1f1a-41bd-9fb4-6b51c4464dd5" />
 
 ---
 
