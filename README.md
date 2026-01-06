@@ -327,10 +327,10 @@ The sophistication of this attack, including the use of multiple persistence mec
 
 | Time (UTC) | Step | Action Observed | Key Evidence |
 |:------------:|:------:|:----------------:|:--------------:|
-| 2025-11-18 20:12:33 | 1 | Initial Access via RDP | External connection from 88.97.178.12 using kenji.sato credentials |
-| 2025-11-19 19:04:01 | 2 | Network Reconnaissance | arp -a command executed to enumerate local network |
-| 2025-11-19 12:59:50 | 3 | Defense Evasion - Staging | C:\ProgramData\WindowsCache directory created and hidden |
-| 2025-11-19 13:49:27 | 4 | Defense Evasion - Exclusions | Three file extensions (.bat, .ps1, .exe) excluded from Defender |
+| 2025-11-18 22:44:11 | 1 | Initial Access via RDP | External connection from 88.97.178.12 using kenji.sato credentials |
+| 2025-11-18 17:23:53 | 2 | Network Reconnaissance | arp -a command executed to enumerate local network |
+| 2025-11-19 19:05:33 | 3 | Defense Evasion - Staging | C:\ProgramData\WindowsCache directory created and hidden |
+| 2025-11-19 18:49:27 | 4 | Defense Evasion - Exclusions | Three file extensions (.bat, .ps1, .exe) excluded from Defender |
 | 2025-11-19 18:49:27 | 5 | Defense Evasion - Path Exclusion | C:\Users\KENJI~1.SAT\AppData\Local\Temp excluded from scanning |
 | 2025-11-19 18:49:48 | 6 | Script Deployment | wupdate.ps1 PowerShell script created in Temp directory |
 | 2025-11-19 19:06:58 | 7 | Malware Download | certutil.exe used to download svchost.exe from 78.141.196.6:8080 |
@@ -345,6 +345,10 @@ The sophistication of this attack, including the use of multiple persistence mec
 | 2025-11-19 19:11:39 | 16 | Anti-Forensics - Security Log | wevtutil.exe used to clear Security event log |
 | 2025-11-19 19:11:43 | 17 | Anti-Forensics - System Log | wevtutil.exe used to clear System event log |
 | 2025-11-19 19:11:46 | 18 | Anti-Forensics - Application Log | wevtutil.exe used to clear Application event log |
+
+---
+
+**Note:** Network reconnaissance was observed at 17:23:53 on November 18, prior to the external RDP connection at 22:44:11. This suggests potential earlier compromise through an unidentified vector. The timeline reflects logical attack progression rather than strict chronological order.
 
 ---
 
