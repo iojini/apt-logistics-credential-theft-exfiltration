@@ -209,26 +209,25 @@ DeviceProcessEvents
 <img width="1948" height="330" alt="POE_QR13" src="https://github.com/user-attachments/assets/68801ab9-e4f7-4af6-b358-05a3104f9bed" />
 
 ---
-### 12. Outbound Transfer Attempt
+### 11. Collection & Exfiltration: Data Staging Archive & Exfiltration Channel
 
-Searched for unusual outbound connections and found that a connection to 100.29.147.161 (i.e., httpbin.org) occurred at 1:00:40 PM. Note: httpbin.org is a publicly available testing service used to validate HTTP upload capability.
+Searched for evidence of ZIP file creation in the staging directory during the collection phase since attackers compress stolen data for efficient exfiltration. The compressed archive export-data.zip was created in the staging directory and prepared for exfiltration via the curl upload command. In addition, the attacker utilized Discord's webhook API to exfiltrate the compressed archive. Discord is a legitimate communication platform commonly allowed through firewalls, making this exfiltration technique effective for bypassing network security controls.
 
 **Query used to locate events:**
 
 ```kql
-DeviceNetworkEvents
-| where TimeGenerated between (datetime(2025-10-09 13:00:00) .. datetime(2025-10-09 14:00:00))
-| where DeviceName == "gab-intern-vm"
-| where RemoteUrl != ""
-| project TimeGenerated, RemoteUrl, RemoteIP, RemotePort, InitiatingProcessFileName
-| sort by TimeGenerated asc
+DeviceProcessEvents
+| where TimeGenerated between (datetime(2025-11-18) .. datetime(2025-11-20))
+| where DeviceName == "azuki-sl"
+| where ProcessCommandLine has "WindowsCache" and ProcessCommandLine has ".zip"
+| project TimeGenerated, ProcessCommandLine
 
 ```
-<img width="2443" height="926" alt="Query12 Results" src="https://github.com/user-attachments/assets/68136d27-1688-4020-8571-b83102914bec" />
+<img width="2476" height="295" alt="POE_QR14" src="https://github.com/user-attachments/assets/67ec2819-d3c6-44a3-a555-7eb03abc7f03" />
 
 ---
 
-### 13. Scheduled Re-execution Persistence
+### 13. Exfiltration: Exfiltration Channel
 
 Searched for scheduled task creation commands and found a scheduled task named SupportToolUpdater configured to run ONLOGON. This ensures that SupportTool.ps1 runs automatically every time the user logs in. Additional parameters include -WindowStyle (set to Hidden) and -ExecutionPolicy (set to Bypass), allowing it to execute while avoiding detection and bypassing security.
 
