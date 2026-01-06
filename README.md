@@ -309,7 +309,17 @@ DeviceProcessEvents
 
 ## Summary
 
-The analysis revealed that the target device, gab-intern-vm, was compromised and the subsequent attacks were disguised as a legitimate support session. The attacker orchestrated a multi-stage attack including the execution of a malicious PowerShell script with bypassed security policies, planted artifacts to create false narratives, clipboard content exfiltration, extensive reconnaissance (i.e., host enumeration, session discovery, storage mapping, connectivity validation, process inventory, and privilege checks), egress validation which involved testing internet connectivity and upload capability, the consolidation of collected artifacts into compressed archives, dual persistence (i.e., scheduled tasks and registry autoruns for long-term access), and fabricated support chat logs. The sophistication of this attack hints at an experienced threat actor with knowledge of defensive detection capabilities.
+The investigation revealed a sophisticated multi-stage attack against Azuki Import & Export Trading Co. orchestrated by the ADE SPIDER threat actor group. The attack began with external RDP access using compromised credentials for user account kenji.sato from IP address 88.97.178.12. Following initial access, the attacker conducted network reconnaissance using arp commands to map the environment.
+
+The threat actor demonstrated advanced defense evasion capabilities by creating a hidden staging directory (C:\ProgramData\WindowsCache), adding three file extension exclusions (.bat, .ps1, .exe) to Windows Defender, and excluding the user's temporary folder from security scanning. Malware was downloaded using the legitimate certutil.exe utility, a classic Living Off The Land technique that evades detection.
+
+Persistence was established through multiple mechanisms including a scheduled task named "Windows Update Check" configured to execute malicious payloads daily with SYSTEM privileges, and creation of a backdoor administrator account named "support". The attacker deployed Mimikatz (renamed to mm.exe) to harvest credentials from LSASS memory using the sekurlsa::logonpasswords module.
+
+Command and control communications were established to infrastructure at 78.141.196.6 over port 443 (HTTPS), enabling the attacker to maintain control while blending with legitimate encrypted traffic. Stolen data was compressed into export-data.zip and exfiltrated via Discord webhooks using curl.exe, leveraging a trusted cloud service to bypass network security controls.
+
+The attack culminated in lateral movement to the file server (10.1.0.188) using stolen fileadmin credentials and the built-in mstsc.exe tool. Prior to disconnecting, the attacker systematically cleared Security, System, and Application event logs using wevtutil.exe to destroy forensic evidence. The attack automation was facilitated by a PowerShell script (wupdate.ps1) disguised as a Windows update utility.
+
+The sophistication of this attack, including the use of multiple persistence mechanisms, extensive anti-forensics, and preference for native Windows tools, is consistent with ADE SPIDER's known tactics, techniques, and procedures. The targeting of a logistics company in East Asia aligns with the group's established operational patterns and financial motivation.
 
 ---
 
