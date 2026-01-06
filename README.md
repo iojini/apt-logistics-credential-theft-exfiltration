@@ -288,9 +288,9 @@ DeviceFileEvents
 
 ---
 
-### 15. Lateral Movement: Secondary Target
+### 15. Lateral Movement: Secondary Target & Remote Access Tool
 
-Searched for target systems specified in remote access commands and discovered that the attacker targeted IP address 10.1.0.188 for lateral movement. Since lateral movement targets are selected based on their access to sensitive data or network privileges, identifying these targets can reveal attacker objectives.
+Searched for target systems specified in remote access commands and discovered that the attacker targeted IP address 10.1.0.188 for lateral movement. Since lateral movement targets are selected based on their access to sensitive data or network privileges, identifying these targets can reveal attacker objectives. In addition, the attacker used mstsc.exe (Microsoft Terminal Services Client - the built-in Windows Remote Desktop client) for lateral movement. This Living Off The Land technique allows malicious RDP connections to blend seamlessly with legitimate IT administrative activity.
 
 **Query used to locate events:**
 
@@ -304,44 +304,6 @@ DeviceProcessEvents
 
 ```
 <img width="2140" height="474" alt="POE_QR19" src="https://github.com/user-attachments/assets/a579c51e-e75b-478e-b81e-b29b879a0fbf" />
-
----
-
-### 16. XX
-
-Searched for explanatory artifacts created around the time of the suspicious activity that might serve as planted narratives and identified that the file name of the artifact left behind was SupportChat_log.lnk.
-
-**Query used to locate events:**
-
-```kql
-DeviceFileEvents
-| where TimeGenerated between (datetime(2025-10-09 12:20:00) .. datetime(2025-10-09 14:00:00))
-| where DeviceName == "gab-intern-vm"
-| where FileName contains "Support"
-| project TimeGenerated, FileName, FolderPath, ActionType, InitiatingProcessFileName
-| sort by TimeGenerated asc
-
-```
-<img width="2470" height="659" alt="Query15 Results" src="https://github.com/user-attachments/assets/b5ce65ce-b182-4f81-bc4c-7cf78cdd2618" />
-
----
-
-### 17. XXX
-
-Searched for explanatory artifacts created around the time of the suspicious activity that might serve as planted narratives and identified that the file name of the artifact left behind was SupportChat_log.lnk.
-
-**Query used to locate events:**
-
-```kql
-DeviceFileEvents
-| where TimeGenerated between (datetime(2025-10-09 12:20:00) .. datetime(2025-10-09 14:00:00))
-| where DeviceName == "gab-intern-vm"
-| where FileName contains "Support"
-| project TimeGenerated, FileName, FolderPath, ActionType, InitiatingProcessFileName
-| sort by TimeGenerated asc
-
-```
-<img width="2470" height="659" alt="Query15 Results" src="https://github.com/user-attachments/assets/b5ce65ce-b182-4f81-bc4c-7cf78cdd2618" />
 
 ---
 
