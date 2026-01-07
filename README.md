@@ -58,7 +58,7 @@ DeviceProcessEvents
 
 ### 3. Defense Evasion: Malware Staging Directory
 
-Searched for the the primary staging directory where malware was stored and found that the primary staging directory C:\ProgramData\WindowsCache was created and hidden using attrib commands. 
+Searched for the primary staging directory where malware was stored and found that the primary staging directory C:\ProgramData\WindowsCache was created and hidden using attrib commands. 
 
 **Query used to locate events:**
 
