@@ -21,7 +21,7 @@ Azuki Import & Export Trading Co. experienced anomalous network activity and sus
 
 Searched for remote interactive sessions from external sources during the incident timeframe to identify the origin of unauthorized access. The analysis revealed that the external IP address 88.97.178.12 established an RDP connection to azuki-logistics, marking the initial access point for the attack. In addition, discovered that the account that was compromised and used for initial RDP access was the user account kenji.sato.
 
-**Queries used to locate events:**
+**Query used to locate events:**
 
 ```kql
 DeviceLogonEvents
